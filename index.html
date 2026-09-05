@@ -1,0 +1,2767 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#03030a">
+
+<title>Madhu Akki Baba — Secret Universe</title>
+
+<style>
+:root{
+  --bg:#03030a;
+  --pink:#ff2bd6;
+  --purple:#8d4dff;
+  --cyan:#26e7ff;
+  --white:#faf7ff;
+  --muted:#aaa5bd;
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:var(--bg);
+  color:var(--white);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+
+body{
+  touch-action:none;
+  user-select:none;
+}
+
+button{
+  font:inherit;
+  cursor:pointer;
+}
+
+#app{
+  position:fixed;
+  inset:0;
+  overflow:hidden;
+  background:#03030a;
+}
+
+.scene{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .8s ease;
+}
+
+.scene.active{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+
+.center{
+  position:relative;
+  z-index:5;
+  width:min(92vw,700px);
+  padding:24px;
+  text-align:center;
+}
+
+.mono{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+
+/* =========================
+   GLOBAL FX
+========================= */
+
+.noise{
+  position:absolute;
+  inset:0;
+  z-index:200;
+  pointer-events:none;
+  opacity:.035;
+  background-image:
+  url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>");
+}
+
+.scan{
+  position:absolute;
+  inset:0;
+  z-index:199;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 5px,
+      rgba(255,255,255,.015) 6px,
+      rgba(255,255,255,.015) 7px
+    );
+}
+
+#stars,
+#particles{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+}
+
+#stars{z-index:0}
+#particles{z-index:100}
+
+#flash{
+  position:fixed;
+  inset:0;
+  background:white;
+  opacity:0;
+  pointer-events:none;
+  z-index:150;
+}
+
+#flash.on{
+  animation:flash .75s ease-out;
+}
+
+@keyframes flash{
+  0%{opacity:0}
+  10%{opacity:.9}
+  100%{opacity:0}
+}
+
+/* =========================
+   TAP FX
+========================= */
+
+.tapRing{
+  position:fixed;
+  width:18px;
+  height:18px;
+  border:2px solid var(--cyan);
+  border-radius:50%;
+  transform:translate(-50%,-50%) scale(.4);
+  pointer-events:none;
+  z-index:130;
+  animation:tapRing .7s cubic-bezier(.16,1,.3,1) forwards;
+  box-shadow:
+    0 0 15px var(--cyan),
+    inset 0 0 8px var(--cyan);
+}
+
+@keyframes tapRing{
+  0%{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(.4);
+  }
+
+  100%{
+    opacity:0;
+    transform:translate(-50%,-50%) scale(7);
+  }
+}
+
+.tapDot{
+  position:fixed;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:#fff;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  z-index:131;
+  box-shadow:
+    0 0 10px #fff,
+    0 0 25px var(--cyan);
+  animation:tapDot .45s ease-out forwards;
+}
+
+@keyframes tapDot{
+  to{
+    opacity:0;
+    transform:translate(-50%,-50%) scale(3);
+  }
+}
+
+/* =========================
+   BOOT
+========================= */
+
+#boot{
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(141,77,255,.12),
+      transparent 35%
+    ),
+    #03030a;
+}
+
+.bootText{
+  color:#858093;
+  font-size:11px;
+  margin-bottom:18px;
+}
+
+.bootMain{
+  font-size:clamp(35px,12vw,85px);
+  font-weight:950;
+  letter-spacing:.04em;
+  text-shadow:
+    0 0 20px rgba(255,43,214,.45),
+    0 0 50px rgba(141,77,255,.2);
+}
+
+.progress{
+  width:min(420px,75vw);
+  height:2px;
+  margin:30px auto 12px;
+  background:#181520;
+  overflow:hidden;
+}
+
+.progress i{
+  display:block;
+  width:0;
+  height:100%;
+  background:
+    linear-gradient(
+      90deg,
+      var(--cyan),
+      var(--pink),
+      var(--purple)
+    );
+  box-shadow:0 0 15px var(--pink);
+}
+
+.percent{
+  color:#625d70;
+  font-size:10px;
+}
+
+/* =========================
+   IDENTITY
+========================= */
+
+.eyebrow{
+  color:#858094;
+  font-size:10px;
+  letter-spacing:.28em;
+  text-transform:uppercase;
+}
+
+.glitch{
+  margin-top:20px;
+  font-size:clamp(35px,11vw,80px);
+  line-height:.9;
+  font-weight:950;
+  text-shadow:
+    2px 0 var(--cyan),
+    -2px 0 var(--pink);
+  animation:glitch .55s steps(2) infinite;
+}
+
+@keyframes glitch{
+  0%,100%{transform:translate(0)}
+  25%{transform:translate(2px,-1px)}
+  50%{transform:translate(-2px,1px)}
+  75%{transform:translate(1px,0)}
+}
+
+.subtitle{
+  margin-top:25px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.8;
+}
+
+/* =========================
+   UNIVERSE
+========================= */
+
+#universe{
+  background:
+    radial-gradient(
+      circle at 50% 55%,
+      rgba(116,37,180,.2),
+      transparent 30%
+    ),
+    #03030a;
+}
+
+.orbit{
+  position:absolute;
+  width:min(85vw,440px);
+  height:min(85vw,440px);
+  border-radius:50%;
+  border:1px solid rgba(38,231,255,.12);
+  box-shadow:
+    0 0 90px rgba(141,77,255,.12),
+    inset 0 0 70px rgba(255,43,214,.06);
+  animation:spin 16s linear infinite;
+}
+
+.orbit:before,
+.orbit:after{
+  content:"";
+  position:absolute;
+  inset:12%;
+  border-radius:50%;
+  border:1px solid rgba(255,43,214,.1);
+}
+
+.orbit:after{
+  inset:28%;
+  border-color:rgba(38,231,255,.12);
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+.title{
+  margin:14px 0;
+  font-size:clamp(45px,14vw,100px);
+  line-height:.88;
+  font-weight:950;
+  text-shadow:
+    0 0 35px rgba(255,43,214,.35);
+}
+
+.touchHint{
+  position:absolute;
+  bottom:8vh;
+  left:50%;
+  transform:translateX(-50%);
+  white-space:nowrap;
+  color:#777184;
+  font-size:10px;
+  animation:hintPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes hintPulse{
+  50%{
+    opacity:.35;
+    transform:
+      translateX(-50%)
+      scale(1.08);
+  }
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+.btn{
+  margin-top:24px;
+  padding:14px 23px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.045);
+  color:#fff;
+  font-size:10px;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  backdrop-filter:blur(14px);
+  box-shadow:
+    0 0 30px rgba(141,77,255,.12);
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease;
+}
+
+.btn:active{
+  transform:scale(.92);
+  box-shadow:
+    0 0 55px rgba(255,43,214,.35);
+}
+
+.pulse{
+  animation:pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse{
+  50%{
+    box-shadow:
+      0 0 45px rgba(255,43,214,.3),
+      inset 0 0 20px rgba(255,43,214,.05);
+  }
+}
+
+/* =========================
+   SECRET / EASTER EGG
+========================= */
+
+.secretEgg{
+  position:fixed;
+  left:50%;
+  top:50%;
+  transform:
+    translate(-50%,-50%)
+    scale(.5);
+  z-index:180;
+  width:min(85vw,420px);
+  padding:28px;
+  border-radius:24px;
+  text-align:center;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,43,214,.15),
+      rgba(38,231,255,.06)
+    );
+  border:1px solid rgba(255,255,255,.18);
+  backdrop-filter:blur(20px);
+  box-shadow:
+    0 0 80px rgba(255,43,214,.3);
+  opacity:0;
+  pointer-events:none;
+  transition:
+    opacity .35s ease,
+    transform .45s cubic-bezier(.16,1,.3,1);
+}
+
+.secretEgg.show{
+  opacity:1;
+  transform:
+    translate(-50%,-50%)
+    scale(1);
+}
+
+.secretEgg .eggTitle{
+  font-size:12px;
+  letter-spacing:.25em;
+  color:var(--cyan);
+}
+
+.secretEgg .eggText{
+  margin-top:14px;
+  font-size:24px;
+  font-weight:900;
+  line-height:1.25;
+}
+
+.secretEgg .eggSmall{
+  margin-top:12px;
+  color:#aaa5bd;
+  font-size:11px;
+}
+
+/* =========================
+   CUBE
+========================= */
+
+#cubeScene{
+  background:
+    radial-gradient(
+      circle,
+      rgba(255,43,214,.13),
+      transparent 34%
+    ),
+    #03030a;
+}
+
+.cubeWrap{
+  width:170px;
+  height:170px;
+  margin:30px auto 0;
+  perspective:900px;
+  display:grid;
+  place-items:center;
+}
+
+.cube{
+  position:relative;
+  width:120px;
+  height:120px;
+  transform-style:preserve-3d;
+  animation:
+    cubeFloat 3.5s ease-in-out infinite,
+    cubeRotate 10s linear infinite;
+  filter:
+    drop-shadow(
+      0 0 30px
+      rgba(255,43,214,.7)
+    );
+}
+
+.cube.hit{
+  animation:
+    cubeHit .45s ease,
+    cubeRotate 10s linear infinite;
+}
+
+@keyframes cubeHit{
+  50%{
+    transform:
+      scale(1.25)
+      rotateX(20deg)
+      rotateY(20deg);
+
+    filter:
+      drop-shadow(
+        0 0 75px
+        rgba(255,43,214,1)
+      );
+  }
+}
+
+.face{
+  position:absolute;
+  width:120px;
+  height:120px;
+  border:1px solid rgba(255,255,255,.55);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,43,214,.18),
+      rgba(38,231,255,.1)
+    );
+  box-shadow:
+    inset 0 0 30px rgba(255,255,255,.04);
+}
+
+.face:after{
+  content:"";
+  position:absolute;
+  inset:10px;
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.f1{transform:translateZ(60px)}
+.f2{transform:rotateY(180deg) translateZ(60px)}
+.f3{transform:rotateY(90deg) translateZ(60px)}
+.f4{transform:rotateY(-90deg) translateZ(60px)}
+.f5{transform:rotateX(90deg) translateZ(60px)}
+.f6{transform:rotateX(-90deg) translateZ(60px)}
+
+@keyframes cubeFloat{
+  50%{
+    transform:translateY(-14px);
+  }
+}
+
+@keyframes cubeRotate{
+  to{
+    transform:
+      rotateX(360deg)
+      rotateY(360deg);
+  }
+}
+
+.counter{
+  color:#858093;
+  font-size:10px;
+}
+
+#tapCount{
+  color:var(--pink);
+  font-weight:900;
+}
+
+.dots{
+  display:flex;
+  justify-content:center;
+  gap:9px;
+  margin-top:13px;
+}
+
+.dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#292331;
+  transition:.3s;
+}
+
+.dot.on{
+  background:var(--pink);
+  box-shadow:
+    0 0 15px var(--pink),
+    0 0 30px rgba(255,43,214,.4);
+  transform:scale(1.3);
+}
+
+/* =========================
+   REVEAL
+========================= */
+
+.word{
+  font-size:clamp(50px,16vw,120px);
+  font-weight:950;
+  opacity:0;
+  transform:scale(.6);
+  transition:
+    opacity .65s ease,
+    transform .65s cubic-bezier(.16,1,.3,1);
+  text-shadow:
+    0 0 35px rgba(255,43,214,.55);
+}
+
+.word.show{
+  opacity:1;
+  transform:scale(1);
+}
+
+.bigName{
+  margin-top:20px;
+  font-size:clamp(27px,8vw,65px);
+  line-height:1;
+  font-weight:950;
+  opacity:0;
+  transform:translateY(20px);
+  transition:1s;
+}
+
+.bigName.show{
+  opacity:1;
+  transform:none;
+}
+
+/* =========================
+   HEART
+========================= */
+
+#heartScene{
+  background:
+    radial-gradient(
+      circle,
+      rgba(255,43,214,.2),
+      transparent 32%
+    ),
+    #03030a;
+}
+
+.heartCore{
+  font-size:clamp(110px,37vw,250px);
+  color:var(--pink);
+  cursor:pointer;
+  filter:
+    drop-shadow(
+      0 0 45px
+      rgba(255,43,214,.75)
+    );
+  animation:
+    heartBeat 1.25s ease-in-out infinite;
+}
+
+@keyframes heartBeat{
+  50%{
+    transform:scale(1.1);
+  }
+}
+
+.heartCore.beat{
+  animation:
+    bigBeat .55s ease!important;
+}
+
+@keyframes bigBeat{
+  50%{
+    transform:scale(1.3);
+    filter:
+      drop-shadow(
+        0 0 90px
+        rgba(255,43,214,1)
+      );
+  }
+}
+
+.tapText{
+  color:#827c91;
+  font-size:10px;
+  letter-spacing:.2em;
+  animation:
+    hintPulse 1.5s infinite;
+}
+
+/* =========================
+   LETTER
+========================= */
+
+#letter{
+  background:
+    radial-gradient(
+      circle at 50% 25%,
+      rgba(141,77,255,.17),
+      transparent 35%
+    ),
+    #03030a;
+}
+
+.card{
+  position:relative;
+  width:min(90vw,620px);
+  max-height:76vh;
+  overflow:auto;
+  padding:30px 24px;
+  border-radius:24px;
+  border:1px solid rgba(255,255,255,.13);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.075),
+      rgba(255,255,255,.025)
+    );
+  box-shadow:
+    0 0 80px rgba(141,77,255,.12),
+    inset 0 0 35px rgba(255,43,214,.025);
+  backdrop-filter:blur(20px);
+  user-select:text;
+}
+
+.card:before{
+  content:"";
+  position:absolute;
+  left:15%;
+  right:15%;
+  top:0;
+  height:1px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      var(--cyan),
+      var(--pink),
+      transparent
+    );
+  box-shadow:0 0 18px var(--pink);
+}
+
+.card h2{
+  font-size:clamp(23px,7vw,40px);
+  margin:0 0 22px;
+}
+
+.letterText{
+  color:#d8d3df;
+  white-space:pre-line;
+  line-height:1.9;
+  font-size:clamp(14px,4vw,17px);
+}
+
+.cursor{
+  display:inline-block;
+  width:7px;
+  height:1em;
+  background:var(--pink);
+  animation:blink .7s infinite;
+}
+
+@keyframes blink{
+  50%{opacity:0}
+}
+
+/* =========================
+   FINAL
+========================= */
+
+#final{
+  background:#020208;
+}
+
+.finalSmall{
+  color:#817b90;
+  font-size:11px;
+}
+
+.last{
+  max-width:720px;
+  margin:20px auto;
+  font-size:clamp(20px,6vw,43px);
+  line-height:1.45;
+  font-weight:700;
+  transition:1.2s;
+}
+
+.finalTitle{
+  margin-top:25px;
+  font-size:clamp(38px,12vw,90px);
+  line-height:.9;
+  font-weight:950;
+  text-shadow:
+    0 0 35px rgba(255,43,214,.55),
+    0 0 70px rgba(141,77,255,.35);
+  transition:1.2s;
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,
+  *::before,
+  *::after{
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.001ms!important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<canvas id="stars"></canvas>
+<canvas id="particles"></canvas>
+
+<div id="flash"></div>
+
+<div class="noise"></div>
+<div class="scan"></div>
+
+<!-- SECRET EASTER EGG -->
+<div id="secretEgg" class="secretEgg">
+
+  <div class="eggTitle mono">
+    HIDDEN SIGNAL FOUND
+  </div>
+
+  <div class="eggText">
+    You found something<br>
+    that wasn't supposed to be here. 👀💜
+  </div>
+
+  <div class="eggSmall">
+    Some secrets are only discovered by curiosity.
+  </div>
+
+</div>
+
+
+<!-- BOOT -->
+
+<section id="boot" class="scene active">
+
+  <div class="center">
+
+    <div id="bootLine" class="bootText mono">
+      BOOTING PERSONAL UNIVERSE...
+    </div>
+
+    <div class="bootMain">
+      SECRET<span style="color:var(--pink)">.</span>
+    </div>
+
+    <div class="progress">
+      <i id="bar"></i>
+    </div>
+
+    <div id="pct" class="percent mono">
+      0%
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- IDENTITY -->
+
+<section id="identity" class="scene">
+
+  <div class="center">
+
+    <div class="eyebrow mono">
+      IDENTITY FOUND
+    </div>
+
+    <div class="glitch">
+      MADHU<br>
+      AKKI BABA
+    </div>
+
+    <div class="subtitle">
+      This universe was not made for everyone.
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- UNIVERSE -->
+
+<section id="universe" class="scene">
+
+  <div class="orbit"></div>
+
+  <div class="center">
+
+    <div class="eyebrow mono">
+      PRIVATE SIGNAL
+    </div>
+
+    <div class="title">
+      HELLO,<br>
+      MADHU.
+    </div>
+
+    <div class="subtitle">
+      There is something hidden inside this little universe.<br>
+      Touch anywhere to wake it up.
+    </div>
+
+  </div>
+
+  <div class="touchHint mono">
+    ✦ TAP THE UNIVERSE ✦
+  </div>
+
+</section>
+
+
+<!-- SECRET -->
+
+<section id="secret" class="scene">
+
+  <div class="center">
+
+    <div class="eyebrow mono">
+      SECRET 01
+    </div>
+
+    <div class="title"
+         style="font-size:clamp(35px,10vw,75px)">
+
+      I HAVE A<br>
+
+      <span style="color:var(--pink)">
+        SECRET.
+      </span>
+
+    </div>
+
+    <div class="subtitle">
+      Swipe up or tap the button.
+    </div>
+
+    <button
+      id="swipeBtn"
+      class="btn pulse">
+
+      Continue the story ↑
+
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- CUBE -->
+
+<section id="cubeScene" class="scene">
+
+  <div class="center">
+
+    <div class="eyebrow mono">
+      LOCKED MEMORY
+    </div>
+
+    <div class="cubeWrap">
+
+      <div id="cube" class="cube">
+
+        <div class="face f1"></div>
+        <div class="face f2"></div>
+        <div class="face f3"></div>
+        <div class="face f4"></div>
+        <div class="face f5"></div>
+        <div class="face f6"></div>
+
+      </div>
+
+    </div>
+
+    <div class="counter mono">
+
+      Tap the cube to unlock
+
+      <span id="tapCount">
+        0
+      </span>/3
+
+    </div>
+
+    <div class="dots">
+
+      <i id="d1" class="dot"></i>
+      <i id="d2" class="dot"></i>
+      <i id="d3" class="dot"></i>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- REVEAL -->
+
+<section id="reveal" class="scene">
+
+  <div class="center">
+
+    <div class="eyebrow mono">
+      UNLOCKED
+    </div>
+
+    <div id="w1" class="word">
+      TODAY
+    </div>
+
+    <div id="w2" class="word">
+      IS
+    </div>
+
+    <div id="w3" class="word">
+      YOUR
+    </div>
+
+    <div id="w4" class="word">
+      DAY
+    </div>
+
+    <div id="birthdayName" class="bigName">
+
+      HAPPY BIRTHDAY<br>
+
+      <span style="color:var(--pink)">
+        MADHU AKKI BABA
+      </span>
+
+      ❤️
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- HEART -->
+
+<section id="heartScene" class="scene">
+
+  <div class="center">
+
+    <div class="eyebrow mono">
+      ONE MORE THING
+    </div>
+
+    <div id="heartCore" class="heartCore">
+      ♥
+    </div>
+
+    <div class="tapText mono">
+      TOUCH THE HEART
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- LETTER -->
+
+<section id="letter" class="scene">
+
+  <div class="card">
+
+    <div class="eyebrow mono">
+      A MESSAGE FROM THE OTHER SIDE
+    </div>
+
+    <h2>
+      For Madhu Akki Baba 💜
+    </h2>
+
+    <div id="letterText" class="letterText"></div>
+
+    <span class="cursor"></span>
+
+  </div>
+
+</section>
+
+
+<!-- FINAL -->
+
+<section id="final" class="scene">
+
+  <div class="center">
+
+    <div class="finalSmall mono">
+      WAIT...
+    </div>
+
+    <div
+      id="lastThing"
+      class="last"
+      style="
+        opacity:0;
+        transform:translateY(20px)
+      "
+    >
+      There's one last thing.
+    </div>
+
+    <div
+      id="finalMessage"
+      class="last"
+      style="
+        opacity:0;
+        transform:translateY(20px)
+      "
+    >
+
+      ඔයාට මම හදපු මේ surprise එකට වඩා,<br>
+
+      <span style="color:var(--pink)">
+        ඔයාගේ හිනාව ලස්සනයි. ❤️
+      </span>
+
+    </div>
+
+    <div
+      id="finalTitle"
+      class="finalTitle"
+      style="
+        opacity:0;
+        transform:scale(.8)
+      "
+    >
+
+      HAPPY BIRTHDAY<br>
+      MADHU AKKI BABA
+
+    </div>
+
+    <button
+      id="replay"
+      class="btn"
+      style="opacity:0">
+
+      ↻ Experience Again
+
+    </button>
+
+  </div>
+
+</section>
+
+</div>
+
+
+<script>
+
+(() => {
+
+"use strict";
+
+
+/* =========================
+   HELPERS
+========================= */
+
+const $ = s =>
+  document.querySelector(s);
+
+const $$ = s =>
+  document.querySelectorAll(s);
+
+const scenes =
+  $$('.scene');
+
+
+/* =========================
+   SCENE ENGINE
+========================= */
+
+function show(id){
+
+  scenes.forEach(scene =>
+    scene.classList.remove('active')
+  );
+
+  const target =
+    $('#'+id);
+
+  if(target){
+    target.classList.add('active');
+  }
+
+}
+
+
+/* =========================
+   AUDIO
+========================= */
+
+let audioCtx=null;
+
+function audio(){
+
+  try{
+
+    if(!audioCtx){
+
+      audioCtx =
+        new (
+          window.AudioContext ||
+          window.webkitAudioContext
+        )();
+
+    }
+
+    if(
+      audioCtx.state === 'suspended'
+    ){
+
+      audioCtx.resume();
+
+    }
+
+  }catch(e){}
+
+}
+
+function tone(
+  frequency,
+  duration=.12,
+  type='sine',
+  gain=.035
+){
+
+  try{
+
+    audio();
+
+    const osc =
+      audioCtx.createOscillator();
+
+    const gainNode =
+      audioCtx.createGain();
+
+    osc.type=type;
+
+    osc.frequency.value=
+      frequency;
+
+    gainNode.gain.setValueAtTime(
+      gain,
+      audioCtx.currentTime
+    );
+
+    gainNode.gain.exponentialRampToValueAtTime(
+      .0001,
+      audioCtx.currentTime+duration
+    );
+
+    osc
+      .connect(gainNode)
+      .connect(audioCtx.destination);
+
+    osc.start();
+
+    osc.stop(
+      audioCtx.currentTime+duration
+    );
+
+  }catch(e){}
+
+}
+
+
+/* =========================
+   HAPTIC
+========================= */
+
+function haptic(pattern=10){
+
+  try{
+
+    if(
+      navigator.vibrate
+    ){
+
+      navigator.vibrate(
+        pattern
+      );
+
+    }
+
+  }catch(e){}
+
+}
+
+
+/* =========================
+   CANVAS
+========================= */
+
+const starCanvas =
+  $('#stars');
+
+const starCtx =
+  starCanvas.getContext('2d');
+
+const particleCanvas =
+  $('#particles');
+
+const particleCtx =
+  particleCanvas.getContext('2d');
+
+let W=0;
+let H=0;
+let DPR=1;
+
+let stars=[];
+let particles=[];
+
+function resize(){
+
+  DPR=Math.min(
+    window.devicePixelRatio || 1,
+    2
+  );
+
+  W=innerWidth;
+  H=innerHeight;
+
+  [
+    starCanvas,
+    particleCanvas
+  ].forEach(canvas=>{
+
+    canvas.width=
+      W*DPR;
+
+    canvas.height=
+      H*DPR;
+
+    canvas.style.width=
+      W+'px';
+
+    canvas.style.height=
+      H+'px';
+
+  });
+
+  starCtx.setTransform(
+    DPR,0,0,DPR,0,0
+  );
+
+  particleCtx.setTransform(
+    DPR,0,0,DPR,0,0
+  );
+
+  stars=Array.from(
+    {
+      length:
+        Math.min(
+          220,
+          Math.floor(
+            W*H/5500
+          )
+        )
+    },
+    ()=>({
+
+      x:Math.random()*W,
+
+      y:Math.random()*H,
+
+      z:.2+
+        Math.random()*.8,
+
+      r:.4+
+        Math.random()*1.5,
+
+      speed:.1+
+        Math.random()*.5
+
+    })
+  );
+
+}
+
+resize();
+
+window.addEventListener(
+  'resize',
+  resize
+);
+
+
+/* =========================
+   STARS
+========================= */
+
+function drawStars(){
+
+  starCtx.clearRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+  for(
+    const star of stars
+  ){
+
+    star.y +=
+      star.speed*star.z;
+
+    if(star.y>H){
+      star.y=-2;
+    }
+
+    starCtx.globalAlpha=
+      .25+.55*star.z;
+
+    starCtx.fillStyle=
+      star.z>.72
+      ? '#ffffff'
+      : '#9b8dff';
+
+    starCtx.beginPath();
+
+    starCtx.arc(
+      star.x,
+      star.y,
+      star.r*star.z,
+      0,
+      Math.PI*2
+    );
+
+    starCtx.fill();
+
+  }
+
+}
+
+
+/* =========================
+   PARTICLES
+========================= */
+
+function drawParticles(){
+
+  particleCtx.clearRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+  for(
+    const p of particles
+  ){
+
+    p.x+=p.vx;
+    p.y+=p.vy;
+
+    p.vy+=.018;
+
+    p.life-=.012;
+
+    p.rotation+=
+      p.rotationSpeed;
+
+    particleCtx.globalAlpha=
+      Math.max(
+        0,
+        p.life
+      );
+
+    particleCtx.fillStyle=
+      p.color;
+
+    particleCtx.save();
+
+    particleCtx.translate(
+      p.x,
+      p.y
+    );
+
+    particleCtx.rotate(
+      p.rotation
+    );
+
+    particleCtx.fillRect(
+      -p.size/2,
+      -p.size/2,
+      p.size,
+      p.size
+    );
+
+    particleCtx.restore();
+
+  }
+
+  particles=
+    particles.filter(
+      p=>p.life>0
+    );
+
+}
+
+function loop(){
+
+  drawStars();
+  drawParticles();
+
+  requestAnimationFrame(
+    loop
+  );
+
+}
+
+loop();
+
+
+/* =========================
+   BURST
+========================= */
+
+function burst(
+  x=W/2,
+  y=H/2,
+  amount=100
+){
+
+  const colors=[
+    '#ff2bd6',
+    '#26e7ff',
+    '#8d4dff',
+    '#ffffff'
+  ];
+
+  for(
+    let i=0;
+    i<amount;
+    i++
+  ){
+
+    const angle=
+      Math.random()*
+      Math.PI*2;
+
+    const speed=
+      1+
+      Math.random()*7;
+
+    particles.push({
+
+      x,
+      y,
+
+      vx:
+        Math.cos(angle)*
+        speed,
+
+      vy:
+        Math.sin(angle)*
+        speed,
+
+      size:
+        2+
+        Math.random()*5,
+
+      life:
+        .8+
+        Math.random()*.8,
+
+      rotation:
+        Math.random(),
+
+      rotationSpeed:
+        (Math.random()-.5)*.2,
+
+      color:
+        colors[
+          Math.floor(
+            Math.random()*
+            colors.length
+          )
+        ]
+
+    });
+
+  }
+
+}
+
+
+/* =========================
+   TAP EFFECT
+========================= */
+
+function tapEffect(
+  x,
+  y,
+  strong=false
+){
+
+  const ring =
+    document.createElement('i');
+
+  ring.className=
+    'tapRing';
+
+  ring.style.left=
+    x+'px';
+
+  ring.style.top=
+    y+'px';
+
+  if(strong){
+
+    ring.style.borderColor=
+      'var(--pink)';
+
+    ring.style.boxShadow=
+      '0 0 20px var(--pink), inset 0 0 10px var(--pink)';
+
+  }
+
+  document.body.appendChild(
+    ring
+  );
+
+  setTimeout(
+    ()=>ring.remove(),
+    750
+  );
+
+
+  const dot =
+    document.createElement('i');
+
+  dot.className=
+    'tapDot';
+
+  dot.style.left=
+    x+'px';
+
+  dot.style.top=
+    y+'px';
+
+  document.body.appendChild(
+    dot
+  );
+
+  setTimeout(
+    ()=>dot.remove(),
+    500
+  );
+
+
+  burst(
+    x,
+    y,
+    strong ? 35 : 12
+  );
+
+  tone(
+    strong ? 620 : 420,
+    .09,
+    'triangle',
+    strong ? .035 : .018
+  );
+
+  haptic(
+    strong
+    ? [12,20,12]
+    : 8
+  );
+
+}
+
+
+/* =========================
+   FLASH
+========================= */
+
+function flash(){
+
+  const f =
+    $('#flash');
+
+  f.classList.remove('on');
+
+  void f.offsetWidth;
+
+  f.classList.add('on');
+
+}
+
+
+/* =========================
+   BOOT
+========================= */
+
+let progress=0;
+
+const bootMessages=[
+  'BOOTING PERSONAL UNIVERSE...',
+  'CALIBRATING STARFIELD...',
+  'SEARCHING FOR ONE SPECIAL PERSON...',
+  'SIGNAL LOCKED...',
+  'WELCOME.'
+];
+
+const bootInterval=
+  setInterval(()=>{
+
+    progress+=2;
+
+    $('#bar').style.width=
+      progress+'%';
+
+    $('#pct').textContent=
+      progress+'%';
+
+    if(
+      progress ===0
+    ){
+
+      $('#bootLine').textContent=
+        bootMessages[
+          Math.min(
+            4,
+            progress/20-1
+          )
+        ];
+
+      tone(
+        250+
+        progress*3,
+        .05,
+        'sine',
+        .012
+      );
+
+    }
+
+    if(
+      progress>=100
+    ){
+
+      clearInterval(
+        bootInterval
+      );
+
+      setTimeout(()=>{
+
+        show('identity');
+
+        tone(
+          440,
+          .2
+        );
+
+        setTimeout(
+          ()=>show('universe'),
+          2200
+        );
+
+      },450);
+
+    }
+
+  },45);
+
+
+/* =========================
+   GLOBAL TAP
+========================= */
+
+document.addEventListener(
+  'pointerdown',
+  event=>{
+
+    audio();
+
+    const target=
+      event.target;
+
+    if(
+      target.closest('button') ||
+      target.closest('#cube') ||
+      target.closest('#heartCore')
+    ){
+
+      return;
+
+    }
+
+    const active =
+      target.closest(
+        '.scene.active'
+      );
+
+    if(active){
+
+      tapEffect(
+        event.clientX,
+        event.clientY
+      );
+
+    }
+
+  },
+  {passive:true}
+);
+
+
+/* =========================
+   UNIVERSE
+========================= */
+
+let universeOpening=false;
+
+$('#universe')
+.addEventListener(
+  'pointerdown',
+  event=>{
+
+    if(universeOpening){
+      return;
+    }
+
+    universeOpening=true;
+
+    tapEffect(
+      event.clientX,
+      event.clientY,
+      true
+    );
+
+    burst(
+      event.clientX,
+      event.clientY,
+      80
+    );
+
+    tone(
+      520,
+      .16,
+      'triangle',
+      .045
+    );
+
+    haptic(
+      [15,30,15]
+    );
+
+    setTimeout(
+      ()=>show('secret'),
+      900
+    );
+
+  }
+);
+
+
+/* =========================
+   SECRET SWIPE
+========================= */
+
+let startY=0;
+let secretMoving=false;
+
+$('#secret')
+.addEventListener(
+  'pointerdown',
+  event=>{
+
+    startY=
+      event.clientY;
+
+  }
+);
+
+$('#secret')
+.addEventListener(
+  'pointerup',
+  event=>{
+
+    if(secretMoving){
+      return;
+    }
+
+    const distance=
+      startY-event.clientY;
+
+    if(
+      distance>55 ||
+      event.target.closest(
+        '#swipeBtn'
+      )
+    ){
+
+      secretMoving=true;
+
+      tapEffect(
+        event.clientX,
+        event.clientY,
+        true
+      );
+
+      setTimeout(
+        ()=>show('cubeScene'),
+        350
+      );
+
+      tone(
+        660,
+        .15,
+        'triangle',
+        .04
+      );
+
+    }
+
+  }
+);
+
+
+$('#swipeBtn').onclick=
+  event=>{
+
+    event.stopPropagation();
+
+    if(secretMoving){
+      return;
+    }
+
+    secretMoving=true;
+
+    tapEffect(
+      event.clientX,
+      event.clientY,
+      true
+    );
+
+    setTimeout(
+      ()=>show('cubeScene'),
+      350
+    );
+
+  };
+
+
+/* =========================
+   CUBE
+========================= */
+
+let taps=0;
+let cubeUnlocked=false;
+
+$('#cube').addEventListener(
+  'pointerdown',
+  event=>{
+
+    event.stopPropagation();
+
+    if(cubeUnlocked){
+      return;
+    }
+
+    taps++;
+
+    $('#tapCount').textContent=
+      taps;
+
+    const dot=
+      $('#d'+taps);
+
+    if(dot){
+      dot.classList.add('on');
+    }
+
+    const cube=
+      $('#cube');
+
+    cube.classList.remove(
+      'hit'
+    );
+
+    void cube.offsetWidth;
+
+    cube.classList.add(
+      'hit'
+    );
+
+    tapEffect(
+      event.clientX,
+      event.clientY,
+      true
+    );
+
+    tone(
+      330+
+      taps*100,
+      .13,
+      'triangle',
+      .045
+    );
+
+    haptic(
+      taps===3
+      ? [20,30,50]
+      : 15
+    );
+
+    if(
+      taps===3
+    ){
+
+      cubeUnlocked=true;
+
+      setTimeout(()=>{
+
+        flash();
+
+        burst(
+          W/2,
+          H/2,
+          280
+        );
+
+        tone(
+          880,
+          .35,
+          'sine',
+          .05
+        );
+
+        setTimeout(
+          startReveal,
+          850
+        );
+
+      },350);
+
+    }
+
+  }
+);
+
+
+/* =========================
+   REVEAL
+========================= */
+
+async function startReveal(){
+
+  show('reveal');
+
+  const words=[
+    'w1',
+    'w2',
+    'w3',
+    'w4'
+  ];
+
+  for(
+    const id of words
+  ){
+
+    await wait(650);
+
+    $('#'+id)
+      .classList.add(
+        'show'
+      );
+
+    tone(
+      300+
+      Math.random()*250,
+      .1
+    );
+
+  }
+
+  await wait(900);
+
+  $('#birthdayName')
+    .classList.add(
+      'show'
+    );
+
+  burst(
+    W/2,
+    H/2,
+    180
+  );
+
+  tone(523,.18);
+  tone(659,.18);
+  tone(784,.25);
+
+  await wait(2600);
+
+  show('heartScene');
+
+}
+
+
+/* =========================
+   HEART
+========================= */
+
+let heartUsed=false;
+
+$('#heartCore')
+.addEventListener(
+  'pointerdown',
+  event=>{
+
+    event.stopPropagation();
+
+    if(heartUsed){
+      return;
+    }
+
+    heartUsed=true;
+
+    const heart=
+      $('#heartCore');
+
+    heart.classList.remove(
+      'beat'
+    );
+
+    void heart.offsetWidth;
+
+    heart.classList.add(
+      'beat'
+    );
+
+    tapEffect(
+      event.clientX,
+      event.clientY,
+      true
+    );
+
+    burst(
+      W/2,
+      H/2,
+      140
+    );
+
+    tone(
+      180,
+      .35,
+      'sine',
+      .055
+    );
+
+    haptic(
+      [30,40,30]
+    );
+
+    setTimeout(
+      ()=>tone(
+        240,
+        .3,
+        'sine',
+        .04
+      ),
+      160
+    );
+
+    setTimeout(
+      ()=>{
+        show('letter');
+        typeLetter();
+      },
+      800
+    );
+
+  }
+);
+
+
+/* =========================
+   LETTER
+========================= */
+
+const message=
+`මගේ ආදරණීය Madhu Akki Baba ❤️
+
+ඔයාට හැමදාම සතුටින්,
+හිනාවෙලා ඉන්න ලැබෙන්න ඕන. 🥹💖
+
+ඔයාගේ හැම හීනයක්ම
+එකින් එක හැබෑ වෙන්න ඕන. ✨
+
+ඔයා හිතනවටත් වඩා ලස්සන,
+සතුටින් පිරුණු ජීවිතයක්
+ලැබෙන්න ඕන.
+
+අද දවස ඔයා වගේම
+ලස්සන වෙන්න ඕන! 🎂🌸
+
+මේ little universe එක
+ඔයා වෙනුවෙන්ම හදපු එකක්. 🌌
+
+HAPPY BIRTHDAY
+MADHU AKKI BABA! 💜`;
+
+let letterStarted=false;
+
+async function typeLetter(){
+
+  if(letterStarted){
+    return;
+  }
+
+  letterStarted=true;
+
+  const element=
+    $('#letterText');
+
+  element.textContent='';
+
+  for(
+    let i=0;
+    i<message.length;
+    i++
+  ){
+
+    element.textContent+=
+      message[i];
+
+    if(
+      message[i]!==' '
+    ){
+
+      tone(
+        520,
+        .018,
+        'sine',
+        .008
+      );
+
+    }
+
+    await wait(
+      message[i]==='\n'
+      ?180
+      :24
+    );
+
+  }
+
+  await wait(2600);
+
+  show('final');
+
+  finalSequence();
+
+}
+
+
+/* =========================
+   FINAL
+========================= */
+
+async function finalSequence(){
+
+  await wait(1200);
+
+  $('#lastThing').style.opacity=1;
+
+  $('#lastThing').style.transform=
+    'none';
+
+  tone(
+    330,
+    .15
+  );
+
+  await wait(1900);
+
+  $('#finalMessage').style.opacity=1;
+
+  $('#finalMessage').style.transform=
+    'none';
+
+  tone(
+    440,
+    .18
+  );
+
+  await wait(2200);
+
+  $('#finalTitle').style.opacity=1;
+
+  $('#finalTitle').style.transform=
+    'scale(1)';
+
+  burst(
+    W/2,
+    H/2,
+    430
+  );
+
+  flash();
+
+  tone(523,.2);
+
+  setTimeout(
+    ()=>tone(659,.2),
+    170
+  );
+
+  setTimeout(
+    ()=>tone(784,.35),
+    340
+  );
+
+  await wait(1300);
+
+  $('#replay').style.opacity=1;
+
+}
+
+
+/* =========================
+   REPLAY
+========================= */
+
+$('#replay').onclick=
+  event=>{
+
+    event.stopPropagation();
+
+    tapEffect(
+      event.clientX,
+      event.clientY,
+      true
+    );
+
+    setTimeout(
+      ()=>location.reload(),
+      250
+    );
+
+  };
+
+
+/* ==================================================
+   DOUBLE TAP EASTER EGG
+================================================== */
+
+let lastTap=0;
+let eggCooldown=false;
+
+document.addEventListener(
+  'pointerdown',
+  event=>{
+
+    if(
+      eggCooldown ||
+      event.target.closest('button') ||
+      event.target.closest('#cube') ||
+      event.target.closest('#heartCore')
+    ){
+
+      return;
+
+    }
+
+    const now=
+      Date.now();
+
+    if(
+      now-lastTap<330
+    ){
+
+      showEasterEgg(
+        event.clientX,
+        event.clientY
+      );
+
+      lastTap=0;
+
+    }else{
+
+      lastTap=now;
+
+    }
+
+  },
+  {passive:true}
+);
+
+
+function showEasterEgg(
+  x,
+  y
+){
+
+  eggCooldown=true;
+
+  const egg=
+    $('#secretEgg');
+
+  egg.classList.add(
+    'show'
+  );
+
+  tapEffect(
+    x,
+    y,
+    true
+  );
+
+  burst(
+    x,
+    y,
+    170
+  );
+
+  flash();
+
+  tone(
+    740,
+    .12,
+    'triangle',
+    .04
+  );
+
+  setTimeout(
+    ()=>tone(
+      990,
+      .25,
+      'sine',
+      .035
+    ),
+    100
+  );
+
+  haptic(
+    [20,40,20]
+  );
+
+  setTimeout(
+    ()=>{
+      egg.classList.remove(
+        'show'
+      );
+    },
+    2500
+  );
+
+  setTimeout(
+    ()=>{
+      eggCooldown=false;
+    },
+    3000
+  );
+
+}
+
+
+/* ==================================================
+   SHAKE DETECTOR
+================================================== */
+
+let shakeEnabled=true;
+
+let lastAcceleration={
+  x:0,
+  y:0,
+  z:0
+};
+
+let shakeTime=0;
+let shakeHits=0;
+let shakeCooldown=false;
+
+function handleMotion(event){
+
+  if(
+    !shakeEnabled ||
+    shakeCooldown
+  ){
+
+    return;
+  }
+
+  /*
+    Shake is only active
+    during the story,
+    not while typing/final.
+  */
+
+  const activeScene=
+    document.querySelector(
+      '.scene.active'
+    );
+
+  if(!activeScene){
+    return;
+  }
+
+  const id=
+    activeScene.id;
+
+  if(
+    id==='boot' ||
+    id==='letter' ||
+    id==='final'
+  ){
+
+    return;
+  }
+
+  const acc=
+    event.accelerationIncludingGravity;
+
+  if(!acc){
+    return;
+  }
+
+  const dx=
+    Math.abs(
+      (acc.x||0)-
+      lastAcceleration.x
+    );
+
+  const dy=
+    Math.abs(
+      (acc.y||0)-
+      lastAcceleration.y
+    );
+
+  const dz=
+    Math.abs(
+      (acc.z||0)-
+      lastAcceleration.z
+    );
+
+  const movement=
+    dx+dy+dz;
+
+  lastAcceleration={
+    x:acc.x||0,
+    y:acc.y||0,
+    z:acc.z||0
+  };
+
+  if(
+    movement>24
+  ){
+
+    const now=
+      Date.now();
+
+    if(
+      now-shakeTime>500
+    ){
+
+      shakeHits=0;
+
+    }
+
+    shakeTime=now;
+
+    shakeHits++;
+
+    /*
+      Three strong movements
+      = secret shake unlock.
+    */
+
+    if(
+      shakeHits>=3
+    ){
+
+      shakeHits=0;
+
+      triggerShakeSecret();
+
+    }
+
+  }
+
+}
+
+
+function triggerShakeSecret(){
+
+  if(shakeCooldown){
+    return;
+  }
+
+  shakeCooldown=true;
+
+  const x=W/2;
+  const y=H/2;
+
+  showEasterEgg(
+    x,
+    y
+  );
+
+  /*
+    Extra shake effect
+  */
+
+  document.body.animate(
+    [
+      {
+        transform:
+          'translateX(0)'
+      },
+      {
+        transform:
+          'translateX(-8px)'
+      },
+      {
+        transform:
+          'translateX(8px)'
+      },
+      {
+        transform:
+          'translateX(-6px)'
+      },
+      {
+        transform:
+          'translateX(6px)'
+      },
+      {
+        transform:
+          'translateX(0)'
+      }
+    ],
+    {
+      duration:450,
+      easing:'ease-out'
+    }
+  );
+
+  setTimeout(
+    ()=>{
+      shakeCooldown=false;
+    },
+    4000
+  );
+
+}
+
+
+/* =========================
+   MOTION PERMISSION
+========================= */
+
+async function enableMotion(){
+
+  try{
+
+    /*
+      iOS requires permission.
+    */
+
+    if(
+      typeof DeviceMotionEvent !==
+      'undefined' &&
+      typeof DeviceMotionEvent.requestPermission ===
+      'function'
+    ){
+
+      const permission=
+        await DeviceMotionEvent
+          .requestPermission();
+
+      if(
+        permission==='granted'
+      ){
+
+        window.addEventListener(
+          'devicemotion',
+          handleMotion,
+          {passive:true}
+        );
+
+      }
+
+    }else{
+
+      window.addEventListener(
+        'devicemotion',
+        handleMotion,
+        {passive:true}
+      );
+
+    }
+
+  }catch(e){
+
+    /*
+      Motion unavailable:
+      double-tap still works.
+    */
+
+  }
+
+}
+
+
+/*
+  First user interaction activates
+  motion sensors where required.
+*/
+
+document.addEventListener(
+  'pointerdown',
+  ()=>{
+    enableMotion();
+  },
+  {
+    once:true,
+    passive:true
+  }
+);
+
+
+/* =========================
+   WAIT
+========================= */
+
+function wait(ms){
+
+  return new Promise(
+    resolve=>
+      setTimeout(
+        resolve,
+        ms
+      )
+  );
+
+}
+
+})();
+</script>
+
+</body>
+</html>
